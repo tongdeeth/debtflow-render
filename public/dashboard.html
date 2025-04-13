@@ -11,10 +11,17 @@
         .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         a { color: #007bff; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        nav a:hover { text-decoration: underline; }
         .tasks { background: #333; color: white; padding: 5px 10px; border-radius: 5px; display: inline-block; }
     </style>
 </head>
 <body>
+    <nav style="background-color: #007bff; padding: 10px; margin-bottom: 20px;">
+        <a href="index.html" style="color: white; margin-right: 15px; text-decoration: none;">หน้าแรก</a>
+        <a href="dashboard.html" style="color: white; margin-right: 15px; text-decoration: none;">แดชบอร์ด</a>
+        <a href="debts.html" style="color: white; margin-right: 15px; text-decoration: none;">หนี้สิน</a>
+        <a href="tasks.html" style="color: white; margin-right: 15px; text-decoration: none;">งาน</a>
+    </nav>
     <h1>แดชบอร์ด - DebtFlow</h1>
     <div id="noData" class="section">
         <p>ยังไม่มีข้อมูล! กรุณาเพิ่ม <a href="debts.html">หนี้</a> ที่เมนูหนี้สิน</p>
@@ -29,7 +36,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // ตรวจสอบว่ามีข้อมูลหนี้หรือไม่
         const debts = JSON.parse(localStorage.getItem('debts')) || [];
         const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
@@ -38,27 +44,25 @@
             document.getElementById('charts').style.display = 'block';
             document.getElementById('taskCount').textContent = tasks.length;
 
-            // กราฟวงกลม รวมหนี้ทั้งหมด
             const totalDebtCtx = document.getElementById('totalDebtChart').getContext('2d');
             new Chart(totalDebtCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['ชำระ', 'ค้างชำระ'],
                     datasets: [{
-                        data: [12, 88], // ตัวอย่างข้อมูล
+                        data: [12, 88],
                         backgroundColor: ['green', 'red']
                     }]
                 }
             });
 
-            // กราฟวงกลม NPL
             const nplDebtCtx = document.getElementById('nplDebtChart').getContext('2d');
             new Chart(nplDebtCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['ชำระ', 'ค้างชำระ'],
                     datasets: [{
-                        data: [60, 40], // ตัวอย่างข้อมูล
+                        data: [60, 40],
                         backgroundColor: ['green', 'red']
                     }]
                 }
