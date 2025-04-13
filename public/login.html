@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - DebtFriend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px; text-align: center; }
+        select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 10px; border: none; }
+        button { background: #3B82F6; color: white; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #1E3A8A; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>เข้าสู่ระบบ - DebtFriend</h1>
+        <select id="userSelect">
+            <option value="">เลือกผู้ใช้</option>
+        </select>
+        <button onclick="login()">เข้าสู่ระบบ</button>
+    </div>
+
+    <script>
+        // User data
+        const users = [
+            { id: "F35740101", name: "เทวิน วงศ์สง่า", type: "Field Collector", email: "thewin1.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 750, level: 3, rewards: ["ทีมยอดเยี่ยม"] },
+            { id: "F35740067", name: "ปองพล แสงแก้ว", type: "Field Collector", email: "pongphon.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 600, level: 2, rewards: [] },
+            { id: "F35740059", name: "สิทธิพร แสงแก้ว", type: "Field Collector", email: "sitiporn.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 800, level: 4, rewards: ["พนักงานดีเด่น"] },
+            { id: "F35740111", name: "นพมาศ ยศกุล", type: "Field Collector", email: "nobphamat.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 500, level: 2, rewards: [] },
+            { id: "F35740106", name: "มนูรัฐ ประเมลัย", type: "Field Collector", email: "manoonrat.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 900, level: 5, rewards: ["ทีมยอดเยี่ยม"] },
+            { id: "F35740050", name: "ชัยสิทธิ์ จันทร์หอม", type: "Field Collector", email: "chaiyasit.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 400, level: 1, rewards: [] },
+            { id: "F35740038", name: "สุรชัย อินทร์ปิ่น", type: "Field Collector", email: "sulachai.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 650, level: 3, rewards: [] },
+            { id: "F40120004", name: "สุพรรณี จันดา", type: "Field Collector", email: "supannee.rungrueang@gmail.com", team: "F4012", branch: "ขอนแก่น", score: 700, level: 3, rewards: ["พนักงานดีเด่น"] },
+            { id: "F35740055", name: "สุรชัย ยศกุล", type: "Field Collector", email: "surachai.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 550, level: 2, rewards: [] },
+            { id: "F35740088", name: "ธาดา แช่มประสิทธิ์", type: "Field Collector", email: "Thada.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 850, level: 4, rewards: ["ทีมยอดเยี่ยม"] },
+            { id: "F35740112", name: "วารุณี ประทุมลัย", type: "Field Collector", email: "warunee.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 450, level: 1, rewards: [] },
+            { id: "F35740062", name: "พลสี วิเศษศรี", type: "Field Collector", email: "ponsee.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 600, level: 2, rewards: [] },
+            { id: "F35740031", name: "พนิดา ประทุมลัย", type: "Field Collector", email: "phanida1.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 800, level: 4, rewards: ["พนักงานดีเด่น"] },
+            { id: "F35740081", name: "ธงชัย เดชสันเที๊ยะ", type: "Field Collector", email: "thongchai.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 500, level: 2, rewards: [] },
+            { id: "F35740091", name: "วรวุฒิ แสนยะบุตร", type: "Field Collector", email: "worawut.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 750, level: 3, rewards: [] },
+            { id: "F35740042", name: "จีระศักดิ์ กลองตัน", type: "Field Collector", email: "jeerasak.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 650, level: 3, rewards: ["ทีมยอดเยี่ยม"] },
+            { id: "F35740097", name: "วิษณุ บัณฑิตกุล", type: "Field Collector", email: "witsunu.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 550, level: 2, rewards: [] },
+            { id: "F35740049", name: "ประพันธ์ เรืองเพ็ง", type: "Field Collector", email: "praphan.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 700, level: 3, rewards: [] },
+            { id: "F35740073", name: "เปรมวะดี บุญเกิด", type: "Field Collector", email: "premwadee.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 450, level: 1, rewards: [] },
+            { id: "F35740052", name: "สุระศักดิ์ เพชรชาดี", type: "Field Collector", email: "surasak.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 800, level: 4, rewards: ["พนักงานดีเด่น"] },
+            { id: "F40120031", name: "จิรายุส จันดา", type: "Field Collector", email: "chirayut.rungrueang@gmail.com", team: "F4012", branch: "อุดรธานี", score: 600, level: 2, rewards: [] },
+            { id: "F35740037", name: "ศิริพร ครังหิรัญ", type: "Field Collector", email: "siriporn.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 550, level: 2, rewards: [] },
+            { id: "F35740041", name: "อธิคม สิงห์สาธร", type: "Field Collector", email: "athikom.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 700, level: 3, rewards: [] },
+            { id: "F35740092", name: "พีรพัฒน์ เจริญพืช", type: "Field Collector", email: "peeraphat.sdandd@gmail.com", team: "F3574", branch: "ขอนแก่น", score: 650, level: 3, rewards: ["ทีมยอดเยี่ยม"] },
+            { id: "F35740104", name: "คุณวุฒิ บรรเริงเสนาะ", type: "Field Collector", email: "konaawut.sdandd@gmail.com", team: "F3574", branch: "อุดรธานี", score: 500, level: 2, rewards: [] },
+            { id: "F35740000", name: "วิทย์สรัส สุจารี", type: "Admin", email: "vitsarat.sdandd@gmail.com", team: "Admin", branch: "สำนักงานใหญ่", score: 1000, level: 5, rewards: ["ผู้ดูแลยอดเยี่ยม"] }
+        ];
+
+        // Save users to localStorage if not already present
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        // Populate user options
+        const userSelect = document.getElementById('userSelect');
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.name} (${user.type})`;
+            userSelect.appendChild(option);
+        });
+
+        function login() {
+            const userId = userSelect.value;
+            if (!userId) {
+                alert('กรุณาเลือกผู้ใช้');
+                return;
+            }
+            const selectedUser = users.find(u => u.id === userId);
+            localStorage.setItem('currentUser', JSON.stringify(selectedUser));
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
