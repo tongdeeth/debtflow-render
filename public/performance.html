@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลงาน - DebtFriend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        canvas { max-width: 100%; height: 200px; margin-bottom: 20px; }
+        .alert { background: #F87171; color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
+        .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
+        .nav-bar a.active { color: #3B82F6; }
+        .nav-bar i { display: block; margin: 0 auto 5px; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <h1>ผลงาน - DebtFriend</h1>
+
+    <!-- Alert -->
+    <div class="alert" id="performanceAlert" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i> เหลือ 5 งานถึง Target 88%!
+        <button class="action-btn" onclick="planTasks()">วางแผน</button>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="section">
+        <h2>เปอร์เซ็นต์การจบงาน</h2>
+        <p>กลุ่มงาน 6090 (Target 88%)</p>
+        <canvas id="chart6090"></canvas>
+        <p>กลุ่มงาน NPL (Target 40%)</p>
+        <canvas id="chartNPL"></canvas>
+    </div>
+
+    <!-- Summary -->
+    <div class="section">
+        <h2>สรุปผล</h2>
+        <p>งานที่จบแล้ว (วันนี้): <span id="dailyCompleted">0</span></p>
+        <p>ยอด Principle คงเหลือ: <span id="remainingPrinciple">0</span> บาท</p>
+        <p>เปอร์เซ็นต์ปัจจุบัน: <span id="currentPercent">0</span>%</p>
+    </div>
+
+    <!-- Forecast -->
+    <div class="section">
+        <h2>Forecast</h2>
+        <p>เหลือ: <span id="remainingTasks">0</span> งาน / <span id="remainingAmount">0</span> บาท ถึง Target</p>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html"><i class="fas fa-home"></i> หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i> งาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i> รายได้</a>
+        <a href="performance.html" class="active"><i class="fas fa-chart-line"></i> ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const debts = JSON.parse(localStorage.getItem('debts')) || [];
+
+        // Calculate Performance
+        const completed6090 = tasks.filter(t => t.group === '6090' && t.status === 'เสร็จ');
+        const total6090 = tasks.filter(t => t.group === '6090');
+        const completedNPL = tasks.filter(t => t.group === 'NPL' && t.status === 'เสร็จ');
+        const totalNPL = tasks.filter(t => t.group === 'NPL');
+
+        const principle6090Completed = completed6090.reduce((sum, t) => sum + (t.principle || 0), 0);
+        const principle6090Total = total6090.reduce((sum, t) => sum + (t.principle || 0), 0);
+        const principleNPLCompleted = completedNPL.reduce((sum, t) => sum + (t.principle || 0), 0);
+        const principleNPLTotal = totalNPL.reduce((sum, t) => sum + (t.principle || 0), 0);
+
+        const percent6090 = principle6090Total ? (principle6090Completed / principle6090Total) * 100 : 0;
+        const percentNPL = principleNPLTotal ? (principleNPLCompleted / principleNPLTotal) * 100 : 0;
+
+        // Charts
+        new Chart(document.getElementById('chart6090').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['จบแล้ว', 'คงเหลือ'],
+                datasets: [{ data: [percent6090, 100 - percent6090], backgroundColor: ['#34D399', '#F87171'] }]
+            }
+        });
+
+        new Chart(document.getElementById('chartNPL').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['จบแล้ว', 'คงเหลือ'],
+                datasets: [{ data: [percentNPL, 100 - percentNPL], backgroundColor: ['#34D399', '#F87171'] }]
+            }
+        });
+
+        // Summary and Forecast
+        const dailyCompleted = tasks.filter(t => t.status === 'เสร็จ' && new Date(t.completedDate).toDateString() === new Date().toDateString()).length;
+        const remainingPrinciple = principle6090Total + principleNPLTotal - principle6090Completed - principleNPLCompleted;
+        const remainingTasks = total6090.length + totalNPL.length - completed6090.length - completedNPL.length;
+
+        document.getElementById('dailyCompleted').textContent = dailyCompleted;
+        document.getElementById('remainingPrinciple').textContent = remainingPrinciple.toLocaleString();
+        document.getElementById('currentPercent').textContent = ((percent6090 + percentNPL) / 2).toFixed(2);
+        document.getElementById('remainingTasks').textContent = remainingTasks;
+        document.getElementById('remainingAmount').textContent = remainingPrinciple.toLocaleString();
+
+        if (remainingTasks <= 5) {
+            document.getElementById('performanceAlert').style.display = 'block';
+        }
+
+        function planTasks() {
+            window.location.href = 'tasks.html';
+        }
+    </script>
+</body>
+</html>
