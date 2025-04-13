@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายได้ - DebtFriend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; }
+        th { background: rgba(255, 255, 255, 0.2); }
+        td { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .alert { background: #F87171; color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; margin-top: 10px; }
+        canvas { max-width: 100%; height: 200px; margin-bottom: 20px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
+        .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
+        .nav-bar a.active { color: #3B82F6; }
+        .nav-bar i { display: block; margin: 0 auto 5px; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <h1>รายได้ - DebtFriend</h1>
+
+    <!-- Dispute Alert -->
+    <div class="alert" id="disputeAlert" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i> มีการโต้แย้ง: งาน #232016580880
+    </div>
+
+    <!-- Commission Summary -->
+    <div class="section">
+        <h2>สรุป Commission</h2>
+        <canvas id="commissionChart"></canvas>
+    </div>
+
+    <!-- Income Table -->
+    <div class="section">
+        <h2>รายการรายได้</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>งาน</th>
+                    <th>Commission</th>
+                    <th>สถานะ</th>
+                    <th>วันที่จ่าย</th>
+                    <th>คอมเมนต์</th>
+                </tr>
+            </thead>
+            <tbody id="incomeTable"></tbody>
+        </table>
+        <button class="action-btn" onclick="exportReport()">ดาวน์โหลดรายงาน</button>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html"><i class="fas fa-home"></i> หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i> งาน</a>
+        <a href="income.html" class="active"><i class="fas fa-wallet"></i> รายได้</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i> ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const commissionRates = {
+            '6090': { 1: 750, 2: 1100, 3: 3000, 4: 5000 },
+            'NPL': { 2: 1500, 3: 2000, 4: 5000, 5: 6000, 6: 7000 },
+            'repossess': [1500, 6000, 7000, 9000, 10000, 12000]
+        };
+
+        const incomeData = tasks.map(task => {
+            let commission = 0;
+            if (task.status === 'เสร็จ') {
+                if (task.group === '6090') {
+                    commission = commissionRates['6090'][task.installments || 0] || 0;
+                } else if (task.group === 'NPL') {
+                    commission = commissionRates['NPL'][task.installments || 0] || 0;
+                } else if (task.repossess) {
+                    commission = commissionRates['repossess'][Math.floor(Math.random() * commissionRates['repossess'].length)];
+                }
+            }
+            return {
+                contract: task.contract,
+                commission,
+                status: task.status === 'เสร็จ' ? 'จ่ายแล้ว' : 'รอจ่าย',
+                date: new Date().toLocaleDateString('th-TH'),
+                comment: ''
+            };
+        });
+
+        // Commission Chart
+        const paid = incomeData.filter(i => i.status === 'จ่ายแล้ว').reduce((sum, i) => sum + i.commission, 0);
+        const pending = incomeData.filter(i => i.status === 'รอจ่าย').reduce((sum, i) => sum + i.commission, 0);
+        new Chart(document.getElementById('commissionChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['จ่ายแล้ว', 'รอจ่าย'],
+                datasets: [{ data: [paid, pending], backgroundColor: ['#34D399', '#FBBF24'] }]
+            }
+        });
+
+        // Income Table
+        const incomeTable = document.getElementById('incomeTable');
+        incomeData.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.contract}</td>
+                <td>${item.commission.toLocaleString()} บาท</td>
+                <td>${item.status}</td>
+                <td>${item.date}</td>
+                <td><input type="text" placeholder="คอมเมนต์" onblur="updateComment(${index}, this.value)"></td>
+            `;
+            incomeTable.appendChild(row);
+        });
+
+        function updateComment(index, comment) {
+            incomeData[index].comment = comment;
+            if (comment) {
+                document.getElementById('disputeAlert').style.display = 'block';
+            }
+        }
+
+        function exportReport() {
+            let report = "DebtFriend รายงานรายได้\n\n";
+            incomeData.forEach(item => {
+                report += `งาน: ${item.contract}\nCommission: ${item.commission} บาท\nสถานะ: ${item.status}\nวันที่จ่าย: ${item.date}\nคอมเมนต์: ${item.comment || '-'}\n\n`;
+            });
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'debtfriend-income-report.txt';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
