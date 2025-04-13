@@ -1,0 +1,28 @@
+function saveDebt() {
+    const debt = {
+        date: document.getElementById('date').value,
+        principle: document.getElementById('principle').value,
+        name: document.getElementById('debtName').value,
+        amount: document.getElementById('debtAmount').value,
+        type: document.getElementById('debtType').value,
+        code: document.getElementById('debtCode').value,
+        category: document.getElementById('debtCategory').value,
+        licensePlate: document.getElementById('licensePlate').value,
+        info: document.getElementById('debtInfo').value
+    };
+    const debts = JSON.parse(localStorage.getItem('debts')) || [];
+    debts.push(debt);
+    localStorage.setItem('debts', JSON.stringify(debts));
+
+    // เพิ่มงานอัตโนมัติ
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.push({
+        name: `หนี้ ${debts.length}`,
+        status: 'กำลัง',
+        state: 'เปิด',
+        code: 'F4012'
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+
+    alert('บันทึกหนี้และเพิ่มงานสำเร็จ');
+}
