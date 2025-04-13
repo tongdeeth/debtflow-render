@@ -4,84 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แดชบอร์ด - DebtFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            padding-bottom: 70px;
-        }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 15px;
-            text-align: center;
-        }
-        h3 {
-            color: #333;
-            font-size: 20px;
-        }
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 0;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-        .nav-item {
-            color: #666;
-            text-align: center;
-            font-size: 12px;
-            text-decoration: none;
-        }
-        .nav-item.active {
-            color: #1e3c72;
-        }
-        .nav-item i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f4f8; }
+        h1 { color: #333; }
+        canvas { max-width: 100%; height: 200px; margin-bottom: 20px; }
+        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .tasks { background: #333; color: white; padding: 5px 10px; border-radius: 5px; display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>แดชบอร์ด - DebtFlow</h3>
-        <p>ยินดีต้อนรับ! ไปที่หน้า <a href="tasks.html">งาน</a> เพื่อดูรายการงาน</p>
+    <h1>แดชบอร์ด - DebtFlow</h1>
+    <div id="noData" class="section">
+        <p>ยังไม่มีข้อมูล! กรุณาเพิ่ม <a href="debts.html">หนี้</a> ที่เมนูหนี้สิน</p>
+    </div>
+    <div id="charts" class="section" style="display: none;">
+        <p>รวมหนี้ทั้งหมด (609%) - Target 88%</p>
+        <canvas id="totalDebtChart"></canvas>
+        <p>รวมหนี้ทั้งหมด (NPL) - Target 40%</p>
+        <canvas id="nplDebtChart"></canvas>
+        <p class="tasks">งานที่ <span id="taskCount">0</span></p>
     </div>
 
-    <div class="nav-bar">
-        <a href="dashboard.html" class="nav-item active">
-            <i class="fas fa-home"></i>
-            หน้าแรก
-        </a>
-        <a href="tasks.html" class="nav-item">
-            <i class="fas fa-briefcase"></i>
-            งาน
-        </a>
-        <a href="performance.html" class="nav-item">
-            <i class="fas fa-chart-line"></i>
-            ผลงาน
-        </a>
-        <a href="income.html" class="nav-item">
-            <i class="fas fa-wallet"></i>
-            รายได้
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            โปรไฟล์
-        </a>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ตรวจสอบว่ามีข้อมูลหนี้หรือไม่
+        const debts = JSON.parse(localStorage.getItem('debts')) || [];
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        if (debts.length > 0) {
+            document.getElementById('noData').style.display = 'none';
+            document.getElementById('charts').style.display = 'block';
+            document.getElementById('taskCount').textContent = tasks.length;
+
+            // กราฟวงกลม รวมหนี้ทั้งหมด
+            const totalDebtCtx = document.getElementById('totalDebtChart').getContext('2d');
+            new Chart(totalDebtCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ชำระ', 'ค้างชำระ'],
+                    datasets: [{
+                        data: [12, 88], // ตัวอย่างข้อมูล
+                        backgroundColor: ['green', 'red']
+                    }]
+                }
+            });
+
+            // กราฟวงกลม NPL
+            const nplDebtCtx = document.getElementById('nplDebtChart').getContext('2d');
+            new Chart(nplDebtCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ชำระ', 'ค้างชำระ'],
+                    datasets: [{
+                        data: [60, 40], // ตัวอย่างข้อมูล
+                        backgroundColor: ['green', 'red']
+                    }]
+                }
+            });
+        }
+    </script>
 </body>
 </html>
