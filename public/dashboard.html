@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ด - DebtFriend</title>
+    <title>หน้าแรก - DebtFriend</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
         h1 { font-size: 24px; margin-bottom: 20px; }
         .section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
-        .overview { display: flex; justify-content: space-between; gap: 10px; }
-        .overview div { background: rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 10px; flex: 1; text-align: center; }
         .alert { background: #F59E0B; color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
-        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; margin-top: 10px; }
-        .action-btn:hover { background: #1E3A8A; }
-        canvas { max-width: 100%; height: 200px; margin-bottom: 20px; }
+        .summary-boxes { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .summary-box { background: rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 10px; flex: 1; margin: 0 5px; text-align: center; }
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
         .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
         .nav-bar a.active { color: #3B82F6; }
@@ -22,45 +19,36 @@
     </style>
 </head>
 <body>
-    <h1>แดชบอร์ด - DebtFriend</h1>
+    <h1>หน้าแรก - DebtFriend</h1>
 
-    <!-- Smart Alert -->
-    <div class="alert">
-        <i class="fas fa-lightbulb"></i> งานด่วน: 2 รายการ ต้องดำเนินการวันนี้!
+    <!-- Dispute Alert -->
+    <div class="alert" id="disputeAlert" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i> มีการโต้แย้ง: งาน #<span id="disputedTask"></span>
     </div>
 
-    <!-- Task Overview -->
+    <!-- Task Summary -->
     <div class="section">
-        <h2>ภาพรวมงาน</h2>
-        <div class="overview">
-            <div>ค้างชำระ: <span id="pendingTasks">0</span></div>
-            <div>ชำระแล้ว: <span id="completedTasks">0</span></div>
-            <div>รอยึด: <span id="repossessTasks">0</span></div>
+        <h2>สรุปงาน</h2>
+        <div class="summary-boxes">
+            <div class="summary-box">
+                <p>ติดต่อไม่ได้</p>
+                <p id="contactFailed">0</p>
+            </div>
+            <div class="summary-box">
+                <p>นัดหมาย</p>
+                <p id="scheduled">0</p>
+            </div>
+            <div class="summary-box">
+                <p>จบงาน</p>
+                <p id="completed">0</p>
+            </div>
         </div>
     </div>
 
-    <!-- Income Summary -->
+    <!-- Commission Summary -->
     <div class="section">
         <h2>รายได้</h2>
-        <p>Commission เดือนนี้: <span id="monthlyIncome">0 บาท</span></p>
-        <button class="action-btn" onclick="window.location.href='income.html'">ดูรายได้ทั้งหมด</button>
-    </div>
-
-    <!-- Performance Analytics -->
-    <div class="section">
-        <h2>ผลงาน</h2>
-        <canvas id="performanceChart"></canvas>
-        <button class="action-btn" onclick="window.location.href='performance.html'">ดูผลงานเพิ่มเติม</button>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="section">
-        <h2>การทำงาน</h2>
-        <button class="action-btn" onclick="window.location.href='tasks.html'">มอบหมาย/รับงาน</button>
-        <button class="action-btn" onclick="window.location.href='map.html'">ดูแผนที่/ฝากงาน</button>
-        <button class="action-btn" onclick="downloadReport()">ดาวน์โหลดรายงาน</button>
-        <button class="action-btn" onclick="window.location.href='profile.html'">ดูโปรไฟล์/คะแนน</button>
-        <button class="action-btn" onclick="window.location.href='settings.html'">ตั้งค่า</button>
+        <p>Commission รวม: <span id="totalCommission">0</span> บาท</p>
     </div>
 
     <!-- Navigation Bar -->
@@ -72,42 +60,37 @@
         <a href="profile.html"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
         const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        const debts = JSON.parse(localStorage.getItem('debts')) || [];
+        const incomeData = JSON.parse(localStorage.getItem('incomeData')) || [];
 
-        // Task Overview
-        document.getElementById('pendingTasks').textContent = tasks.filter(t => t.status === 'กำลัง').length;
-        document.getElementById('completedTasks').textContent = tasks.filter(t => t.status === 'เสร็จ').length;
-        document.getElementById('repossessTasks').textContent = tasks.filter(t => t.repossess).length;
+        // Check if user is logged in
+        if (!currentUser.id) {
+            window.location.href = 'login.html';
+            return;
+        }
 
-        // Performance Chart (ตัวอย่าง)
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['จบแล้ว', 'คงเหลือ'],
-                datasets: [{
-                    data: [12, 88],
-                    backgroundColor: ['#34D399', '#F87171']
-                }]
-            }
-        });
+        // Filter tasks based on user role
+        const isAdmin = currentUser.type === 'Admin';
+        const userTasks = isAdmin ? tasks : tasks.filter(t => t.assignedTo === currentUser.id);
 
-        function downloadReport() {
-            const data = "DebtFriend รายงาน\n\n" + 
-                        `จำนวนงานทั้งหมด: ${tasks.length}\n` +
-                        `ค้างชำระ: ${tasks.filter(t => t.status === 'กำลัง').length}\n` +
-                        `ชำระแล้ว: ${tasks.filter(t => t.status === 'เสร็จ').length}\n` +
-                        `รอยึด: ${tasks.filter(t => t.repossess).length}\n`;
-            const blob = new Blob([data], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'debtfriend-report.txt';
-            a.click();
-            window.URL.revokeObjectURL(url);
+        // Task Summary
+        document.getElementById('contactFailed').textContent = userTasks.filter(t => t.status === 'ติดต่อไม่ได้').length;
+        document.getElementById('scheduled').textContent = userTasks.filter(t => t.status === 'นัดหมาย').length;
+        document.getElementById('completed').textContent = userTasks.filter(t => t.status === 'จบงานสำเร็จ').length;
+
+        // Commission Summary
+        const totalCommission = incomeData
+            .filter(i => isAdmin || i.assignedTo === currentUser.id)
+            .reduce((sum, i) => sum + (i.status === 'จ่ายแล้ว' ? i.commission : 0), 0);
+        document.getElementById('totalCommission').textContent = totalCommission.toLocaleString();
+
+        // Dispute Alert
+        const disputedTask = incomeData.find(i => i.comment);
+        if (disputedTask) {
+            document.getElementById('disputeAlert').style.display = 'block';
+            document.getElementById('disputedTask').textContent = disputedTask.contract;
         }
     </script>
 </body>
