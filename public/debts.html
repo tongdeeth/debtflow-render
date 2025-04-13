@@ -16,9 +16,16 @@
         .back-btn:hover { background-color: #e0a800; }
         .new-btn { background-color: #007bff; color: white; }
         .new-btn:hover { background-color: #0056b3; }
+        nav a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <nav style="background-color: #007bff; padding: 10px; margin-bottom: 20px;">
+        <a href="index.html" style="color: white; margin-right: 15px; text-decoration: none;">หน้าแรก</a>
+        <a href="dashboard.html" style="color: white; margin-right: 15px; text-decoration: none;">แดชบอร์ด</a>
+        <a href="debts.html" style="color: white; margin-right: 15px; text-decoration: none;">หนี้สิน</a>
+        <a href="tasks.html" style="color: white; margin-right: 15px; text-decoration: none;">งาน</a>
+    </nav>
     <h1>หนี้ - DebtFlow</h1>
     <div class="section">
         <label>วันที่ 1 - เสร็จ</label>
@@ -68,7 +75,17 @@
             const debts = JSON.parse(localStorage.getItem('debts')) || [];
             debts.push(debt);
             localStorage.setItem('debts', JSON.stringify(debts));
-            alert('บันทึกหนี้สำเร็จ');
+
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push({
+                name: `หนี้ ${debts.length}`,
+                status: 'กำลัง',
+                state: 'เปิด',
+                code: 'F4012'
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+
+            alert('บันทึกหนี้และเพิ่มงานสำเร็จ');
         }
 
         function clearForm() {
