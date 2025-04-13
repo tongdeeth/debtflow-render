@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มรายชื่อพนักงาน - DebtFriend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .form-section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .form-section label { display: block; margin-bottom: 5px; }
+        .form-section input, .form-section select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.2); color: white; }
+        .form-section input::placeholder { color: #ccc; }
+        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; transition: background 0.3s; }
+        .action-btn:hover { background: #1E3A8A; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
+        .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
+        .nav-bar a.active { color: #3B82F6; }
+        .nav-bar i { display: block; margin: 0 auto 5px; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <h1>เพิ่มรายชื่อพนักงาน - DebtFriend</h1>
+
+    <!-- Form to Add Employee -->
+    <div class="form-section">
+        <h2>เพิ่มพนักงานใหม่</h2>
+        <label for="userCode">User Code</label>
+        <input type="text" id="userCode" placeholder="เช่น F35740101" required>
+        
+        <label for="fullName">ชื่อ-นามสกุล</label>
+        <input type="text" id="fullName" placeholder="เช่น เทวิน วงศ์สง่า" required>
+        
+        <label for="userType">ประเภทผู้ใช้งาน</label>
+        <select id="userType" required>
+            <option value="Field Collector">Field Collector</option>
+            <option value="Admin">Admin</option>
+        </select>
+        
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="เช่น thewin1.sdandd@gmail.com" required>
+        
+        <label for="team">ทีม</label>
+        <input type="text" id="team" placeholder="เช่น F3574" required>
+        
+        <label for="branch">สาขา</label>
+        <input type="text" id="branch" placeholder="เช่น อุดรธานี" required>
+        
+        <button class="action-btn" onclick="addEmployee()">เพิ่มพนักงาน</button>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="active"><i class="fas fa-home"></i> หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i> งาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i> รายได้</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i> ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
+    </div>
+
+    <script>
+        (function initializeAddEmployee() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+
+            // Check if user is logged in and is Admin
+            if (!currentUser.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            if (currentUser.type !== 'Admin') {
+                alert('เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าถึงหน้านี้ได้');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+        })();
+
+        function addEmployee() {
+            const userCode = document.getElementById('userCode').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const userType = document.getElementById('userType').value;
+            const email = document.getElementById('email').value.trim();
+            const team = document.getElementById('team').value.trim();
+            const branch = document.getElementById('branch').value.trim();
+
+            // Validation
+            if (!userCode || !fullName || !userType || !email || !team || !branch) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            // Load existing users
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Check if userCode already exists
+            if (users.some(user => user.id === userCode)) {
+                alert('User Code นี้มีอยู่ในระบบแล้ว');
+                return;
+            }
+
+            // Add new employee
+            const newEmployee = {
+                id: userCode,
+                name: fullName,
+                type: userType,
+                email: email,
+                team: team,
+                branch: branch,
+                score: 0, // Default score
+                level: 1, // Default level
+                rewards: [] // Default rewards
+            };
+
+            users.push(newEmployee);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            alert('เพิ่มพนักงานสำเร็จ: ' + fullName);
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
