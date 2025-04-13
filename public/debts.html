@@ -1,31 +1,27 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF- één
+
+UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>หนี้ - DebtFlow</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f4f8; }
-        h1, h2 { color: #333; }
-        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background-color: #f5f5f5; margin: 0; }
+        h1, h2 { color: #333; font-size: 24px; margin-bottom: 20px; }
+        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-right: 10px; font-size: 16px; width: 100%; margin-top: 10px; }
         .save-btn { background-color: #28a745; color: white; }
         .save-btn:hover { background-color: #218838; }
         .back-btn { background-color: #ffc107; color: white; }
         .back-btn:hover { background-color: #e0a800; }
         .new-btn { background-color: #007bff; color: white; }
         .new-btn:hover { background-color: #0056b3; }
-        nav a:hover { text-decoration: underline; }
+        .icon { margin-right: 5px; }
     </style>
 </head>
 <body>
-    <nav style="background-color: #007bff; padding: 10px; margin-bottom: 20px;">
-        <a href="index.html" style="color: white; margin-right: 15px; text-decoration: none;">หน้าแรก</a>
-        <a href="dashboard.html" style="color: white; margin-right: 15px; text-decoration: none;">แดชบอร์ด</a>
-        <a href="debts.html" style="color: white; margin-right: 15px; text-decoration: none;">หนี้สิน</a>
-        <a href="tasks.html" style="color: white; margin-right: 15px; text-decoration: none;">งาน</a>
-    </nav>
     <h1>หนี้ - DebtFlow</h1>
     <div class="section">
         <label>วันที่ 1 - เสร็จ</label>
@@ -34,9 +30,9 @@
         <input type="text" id="principle" value="1,488,751.59">
         <label>หนี้</label>
         <input type="text" id="debtName" value="119 คดีที่ 1 อ้างอิง กู้เงิน 0-0855">
-        <button class="save-btn" onclick="saveDebt()">บันทึก</button>
-        <button class="back-btn" onclick="window.location.href='dashboard.html'">กลับ</button>
-        <button class="new-btn" onclick="clearForm()">เพิ่มหนี้ใหม่</button>
+        <button class="save-btn" onclick="saveDebt()"><span class="icon">✔</span> บันทึก</button>
+        <button class="back-btn" onclick="window.location.href='dashboard.html'"><span class="icon">↩</span> กลับ</button>
+        <button class="new-btn" onclick="clearForm()"><span class="icon">➕</span> เพิ่มหนี้ใหม่</button>
     </div>
     <div class="section">
         <h2>หนี้</h2>
@@ -56,7 +52,7 @@
         <input type="text" id="licensePlate" value="ABC123456789">
         <label>ข้อมูล</label>
         <input type="text" id="debtInfo" value="คุณ อันนี้ข้อมูลนะ">
-        <button class="save-btn" onclick="saveDebt()">บันทึก</button>
+        <button class="save-btn" onclick="saveDebt()"><span class="icon">✔</span> บันทึก</button>
     </div>
 
     <script>
