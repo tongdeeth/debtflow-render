@@ -52,7 +52,7 @@
     </div>
 
     <!-- Navigation Bar -->
-    <div class="nav-bar">
+    <div class="nav-bar" id="navBar">
         <a href="dashboard.html" class="active"><i class="fas fa-home"></i> หน้าแรก</a>
         <a href="tasks.html"><i class="fas fa-briefcase"></i> งาน</a>
         <a href="income.html"><i class="fas fa-wallet"></i> รายได้</a>
@@ -61,37 +61,48 @@
     </div>
 
     <script>
-        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
-        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        const incomeData = JSON.parse(localStorage.getItem('incomeData')) || [];
+        (function initializeDashboard() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const incomeData = JSON.parse(localStorage.getItem('incomeData')) || [];
 
-        // Check if user is logged in
-        if (!currentUser.id) {
-            window.location.href = 'login.html';
-            return;
-        }
+            // Check if user is logged in
+            if (!currentUser.id) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-        // Filter tasks based on user role
-        const isAdmin = currentUser.type === 'Admin';
-        const userTasks = isAdmin ? tasks : tasks.filter(t => t.assignedTo === currentUser.id);
+            // Add "Add Employee" menu for Admin only
+            if (currentUser.type === 'Admin') {
+                const navBar = document.getElementById('navBar');
+                const addEmployeeLink = document.createElement('a');
+                addEmployeeLink.href = 'add-employee.html';
+                addEmployeeLink.innerHTML = '<i class="fas fa-user-plus"></i> เพิ่มพนักงาน';
+                navBar.appendChild(addEmployeeLink);
+            }
 
-        // Task Summary
-        document.getElementById('contactFailed').textContent = userTasks.filter(t => t.status === 'ติดต่อไม่ได้').length;
-        document.getElementById('scheduled').textContent = userTasks.filter(t => t.status === 'นัดหมาย').length;
-        document.getElementById('completed').textContent = userTasks.filter(t => t.status === 'จบงานสำเร็จ').length;
+            // Filter tasks based on user role
+            const isAdmin = currentUser.type === 'Admin';
+            const userTasks = isAdmin ? tasks : tasks.filter(t => t.assignedTo === currentUser.id);
 
-        // Commission Summary
-        const totalCommission = incomeData
-            .filter(i => isAdmin || i.assignedTo === currentUser.id)
-            .reduce((sum, i) => sum + (i.status === 'จ่ายแล้ว' ? i.commission : 0), 0);
-        document.getElementById('totalCommission').textContent = totalCommission.toLocaleString();
+            // Task Summary
+            document.getElementById('contactFailed').textContent = userTasks.filter(t => t.status === 'ติดต่อไม่ได้').length;
+            document.getElementById('scheduled').textContent = userTasks.filter(t => t.status === 'นัดหมาย').length;
+            document.getElementById('completed').textContent = userTasks.filter(t => t.status === 'จบงานสำเร็จ').length;
 
-        // Dispute Alert
-        const disputedTask = incomeData.find(i => i.comment);
-        if (disputedTask) {
-            document.getElementById('disputeAlert').style.display = 'block';
-            document.getElementById('disputedTask').textContent = disputedTask.contract;
-        }
+            // Commission Summary
+            const totalCommission = incomeData
+                .filter(i => isAdmin || i.assignedTo === currentUser.id)
+                .reduce((sum, i) => sum + (i.status === 'จ่ายแล้ว' ? i.commission : 0), 0);
+            document.getElementById('totalCommission').textContent = totalCommission.toLocaleString();
+
+            // Dispute Alert
+            const disputedTask = incomeData.find(i => i.comment);
+            if (disputedTask) {
+                document.getElementById('disputeAlert').style.display = 'block';
+                document.getElementById('disputedTask').textContent = disputedTask.contract;
+            }
+        })();
     </script>
 </body>
 </html>
