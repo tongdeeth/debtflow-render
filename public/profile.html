@@ -9,45 +9,70 @@
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
         h1 { font-size: 24px; margin-bottom: 20px; }
         .section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
-        .alert { background: #F87171; color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
-        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .profile-header { text-align: center; }
+        .profile-header img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; }
+        .progress-bar { background: rgba(255, 255, 255, 0.2); border-radius: 10px; height: 20px; margin-top: 10px; position: relative; }
+        .progress-bar div { background: #34D399; height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+        .progress-bar span { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #fff; }
+        .alert { background: #F59E0B; color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .action-btn { background: #3B82F6; color: white; padding: 10px; border: none; border-radius: 15px; cursor: pointer; width: 100%; margin-top: 10px; transition: background 0.3s; }
         .action-btn:hover { background: #1E3A8A; }
+        canvas { max-width: 100%; height: 200px; margin-bottom: 20px; }
+        .reward-card { background: rgba(255, 255, 255, 0.2); padding: 10px; border-radius: 15px; margin-bottom: 10px; text-align: center; transition: transform 0.5s; }
+        .reward-card:hover { transform: rotateY(180deg); }
+        .no-rewards { text-align: center; color: #ccc; }
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
         .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
         .nav-bar a.active { color: #3B82F6; }
         .nav-bar i { display: block; margin: 0 auto 5px; font-size: 24px; }
-        .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
-        .stars { color: #FBBF24; margin: 5px 0; }
     </style>
 </head>
 <body>
     <h1>โปรไฟล์ - DebtFriend</h1>
 
-    <!-- Dispute Alert -->
-    <div class="alert" id="disputeAlert" style="display: none;">
-        <i class="fas fa-exclamation-circle"></i> มีการโต้แย้ง: งาน #<span id="disputedTask"></span>
+    <!-- Personal Alerts -->
+    <div class="alert" id="urgentAlert" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i> งานด่วน: <span id="urgentTasks">0</span> รายการ ต้องดำเนินการวันนี้!
     </div>
 
-    <!-- Profile Picture -->
-    <div class="section">
-        <h2>Profile Picture</h2>
-        <img id="profilePic" src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Profile Picture" class="profile-pic">
-        <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="updateProfilePic(event)">
-        <button class="action-btn" onclick="document.getElementById('profilePicInput').click()">เปลี่ยนรูปโปรไฟล์</button>
+    <!-- Profile Header -->
+    <div class="section profile-header">
+        <img id="profilePic" src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg" alt="Profile Picture">
+        <h2 id="userName">ไม่ระบุ</h2>
+        <p>ระดับ: <span id="userLevel"></span> <i class="fas fa-star"></i></p>
+        <div class="progress-bar">
+            <div id="progressBar"><span id="progressText">0%</span></div>
+        </div>
+        <button class="action-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <!-- Profile Details -->
-    <div class="section">
-        <h2>ข้อมูลส่วนตัว</h2>
-        <p>ชื่อ: <span id="userName"></span></p>
-        <p>ระดับ: <span id="userLevel" class="stars"></span></p>
-    </div>
-
-    <!-- Team Details -->
+    <!-- Team & Branch Info -->
     <div class="section">
         <h2>ข้อมูลทีม</h2>
-        <p>ทีม: <span id="userTeam"></span></p>
-        <p>สาขา: <span id="userBranch"></span></p>
+        <p><i class="fas fa-building"></i> ทีม: <span id="userTeam">ไม่ระบุ</span></p>
+        <p><i class="fas fa-map-marker-alt"></i> สาขา: <span id="userBranch">ไม่ระบุ</span></p>
+        <p>การจบงานทีม: <span id="teamCompletion">0</span>%</p>
+        <canvas id="teamChart"></canvas>
+    </div>
+
+    <!-- Performance History -->
+    <div class="section">
+        <h2>ประวัติผลงาน</h2>
+        <canvas id="performanceHistory"></canvas>
+    </div>
+
+    <!-- Personal Goal -->
+    <div class="section">
+        <h2>เป้าหมายส่วนตัว</h2>
+        <p>ปิดงาน 10 รายในสัปดาห์นี้: <span id="goalProgress">0</span>%</p>
+        <button class="action-btn">ตั้งเป้าใหม่</button>
+    </div>
+
+    <!-- Rewards -->
+    <div class="section">
+        <h2>รางวัล</h2>
+        <div id="rewardsList"></div>
+        <button class="action-btn">แชร์ผลงาน</button>
     </div>
 
     <!-- Navigation Bar -->
@@ -59,15 +84,18 @@
         <a href="profile.html" class="active"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const users = JSON.parse(localStorage.getItem('users')) || [];
         const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
-        const incomeData = JSON.parse(localStorage.getItem('incomeData')) || [];
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-        // Display user details
-        document.getElementById('userName').textContent = currentUser.name || 'ไม่ระบุ';
-        document.getElementById('userTeam').textContent = currentUser.team || 'ไม่ระบุ';
-        document.getElementById('userBranch').textContent = currentUser.branch || 'ไม่ระบุ';
-        document.getElementById('userLevel').textContent = '★'.repeat(currentUser.level || 0);
+        // Check if currentUser exists
+        if (!currentUser.id) {
+            alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+            window.location.href = 'dashboard.html';
+            return;
+        }
 
         // Load profile picture from localStorage if available
         const savedPic = localStorage.getItem('profilePic');
@@ -75,25 +103,78 @@
             document.getElementById('profilePic').src = savedPic;
         }
 
-        // Update profile picture
-        function updateProfilePic(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgData = e.target.result;
-                    document.getElementById('profilePic').src = imgData;
-                    localStorage.setItem('profilePic', imgData);
-                };
-                reader.readAsDataURL(file);
-            }
+        // User Info
+        document.getElementById('userName').textContent = currentUser.name || 'ไม่ระบุ';
+        document.getElementById('userLevel').textContent = currentUser.level || 0;
+        const progressPercent = currentUser.score ? (currentUser.score % 1000) / 10 : 0;
+        document.getElementById('progressBar').style.width = `${progressPercent}%`;
+        document.getElementById('progressText').textContent = `${progressPercent.toFixed(0)}%`;
+        document.getElementById('userTeam').textContent = currentUser.team || 'ไม่ระบุ';
+        document.getElementById('userBranch').textContent = currentUser.branch || 'ไม่ระบุ';
+
+        // Urgent Tasks
+        const userTasks = tasks.filter(t => t.assignedTo === currentUser.id);
+        const urgentTasks = userTasks.filter(t => t.status === 'ติดต่อไม่ได้' && parseFloat(t.distance) < 1).length;
+        if (urgentTasks > 0) {
+            document.getElementById('urgentTasks').textContent = urgentTasks;
+            document.getElementById('urgentAlert').style.display = 'block';
         }
 
-        // Check for disputes in income data
-        const disputedTask = incomeData.find(item => item.comment);
-        if (disputedTask) {
-            document.getElementById('disputeAlert').style.display = 'block';
-            document.getElementById('disputedTask').textContent = disputedTask.contract;
+        // Team Completion
+        const teamTasks = tasks.filter(t => users.some(u => u.team === currentUser.team && t.assignedTo === u.id));
+        const teamCompleted = teamTasks.filter(t => t.status === 'จบงานสำเร็จ').length;
+        const teamCompletionPercent = teamTasks.length ? (teamCompleted / teamTasks.length) * 100 : 0;
+        document.getElementById('teamCompletion').textContent = teamCompletionPercent.toFixed(2);
+
+        new Chart(document.getElementById('teamChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['จบแล้ว', 'คงเหลือ'],
+                datasets: [{ data: [teamCompletionPercent, 100 - teamCompletionPercent], backgroundColor: ['#34D399', '#F87171'] }]
+            }
+        });
+
+        // Performance History
+        const completedTasks = userTasks.filter(t => t.status === 'จบงานสำเร็จ').length;
+        new Chart(document.getElementById('performanceHistory').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['วัน 1', 'วัน 2', 'วัน 3', 'วัน 4', 'วัน 5', 'วัน 6', 'วัน 7'],
+                datasets: [{
+                    label: 'การจบงาน (%)',
+                    data: [60, 65, 70, 68, 75, 80, completedTasks * 10],
+                    borderColor: '#34D399',
+                    fill: false
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+
+        // Personal Goal
+        const goalTarget = 10;
+        const goalProgress = (completedTasks / goalTarget) * 100;
+        document.getElementById('goalProgress').textContent = goalProgress.toFixed(2);
+
+        // Rewards
+        const rewardsList = document.getElementById('rewardsList');
+        if (currentUser.rewards && currentUser.rewards.length > 0) {
+            currentUser.rewards.forEach(reward => {
+                const rewardDiv = document.createElement('div');
+                rewardDiv.className = 'reward-card';
+                rewardDiv.innerHTML = `<i class="fas fa-trophy"></i> ${reward}`;
+                rewardsList.appendChild(rewardDiv);
+            });
+        } else {
+            const noRewards = document.createElement('p');
+            noRewards.className = 'no-rewards';
+            noRewards.textContent = 'ยังไม่มีรางวัล';
+            rewardsList.appendChild(noRewards);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            alert('ออกจากระบบสำเร็จ');
+            window.location.href = 'dashboard.html';
         }
     </script>
 </body>
