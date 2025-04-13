@@ -5,30 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>งาน - DebtFlow</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f4f8; }
-        h1, h2 { color: #333; }
-        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        select { padding: 5px; margin-bottom: 10px; }
-        button { padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; margin-right: 5px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background-color: #f5f5f5; margin: 0; }
+        h1, h2 { color: #333; font-size: 24px; margin-bottom: 20px; }
+        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-right: 5px; font-size: 16px; width: 100%; margin-top: 10px; }
         .view-btn { background-color: #007bff; color: white; }
         .view-btn:hover { background-color: #0056b3; }
         .save-btn { background-color: #28a745; color: white; }
         .save-btn:hover { background-color: #218838; }
         .back-btn { background-color: #ffc107; color: white; }
         .back-btn:hover { background-color: #e0a800; }
-        nav a:hover { text-decoration: underline; }
+        .icon { margin-right: 5px; }
     </style>
 </head>
 <body>
-    <nav style="background-color: #007bff; padding: 10px; margin-bottom: 20px;">
-        <a href="index.html" style="color: white; margin-right: 15px; text-decoration: none;">หน้าแรก</a>
-        <a href="dashboard.html" style="color: white; margin-right: 15px; text-decoration: none;">แดชบอร์ด</a>
-        <a href="debts.html" style="color: white; margin-right: 15px; text-decoration: none;">หนี้สิน</a>
-        <a href="tasks.html" style="color: white; margin-right: 15px; text-decoration: none;">งาน</a>
-    </nav>
     <h1>งาน - DebtFlow</h1>
     <div class="section">
         <select id="filter">
+            <option>ตัวกรอง</option>
             <option>ทั้งหมด</option>
         </select>
         <p>จำนวนงาน: <span id="taskCount">0</span></p>
@@ -46,9 +41,9 @@
                 <h2>task${index + 1}</h2>
                 <p>หนี้ ${index + 1} - ${task.status}</p>
                 <p>สถานะ: ${task.state}</p>
-                <button class="view-btn" onclick="window.location.href='task-details.html?taskId=${index}'">เลือกข้อมูล</button>
-                <button class="save-btn" onclick="saveTask(${index})">บันทึก</button>
-                <button class="back-btn" onclick="window.location.href='dashboard.html'">กลับ</button>
+                <button class="view-btn" onclick="window.location.href='task-details.html?taskId=${index}'"><span class="icon">📄</span> เลือกข้อมูล</button>
+                <button class="save-btn" onclick="saveTask(${index})"><span class="icon">✔</span> บันทึก</button>
+                <button class="back-btn" onclick="window.location.href='dashboard.html'"><span class="icon">↩</span> กลับ</button>
             `;
             taskList.appendChild(taskDiv);
         });
