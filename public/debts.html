@@ -1,28 +1,85 @@
-function saveDebt() {
-    const debt = {
-        date: document.getElementById('date').value,
-        principle: document.getElementById('principle').value,
-        name: document.getElementById('debtName').value,
-        amount: document.getElementById('debtAmount').value,
-        type: document.getElementById('debtType').value,
-        code: document.getElementById('debtCode').value,
-        category: document.getElementById('debtCategory').value,
-        licensePlate: document.getElementById('licensePlate').value,
-        info: document.getElementById('debtInfo').value
-    };
-    const debts = JSON.parse(localStorage.getItem('debts')) || [];
-    debts.push(debt);
-    localStorage.setItem('debts', JSON.stringify(debts));
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หนี้ - DebtFlow</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f4f8; }
+        h1, h2 { color: #333; }
+        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+        .save-btn { background-color: #28a745; color: white; }
+        .save-btn:hover { background-color: #218838; }
+        .back-btn { background-color: #ffc107; color: white; }
+        .back-btn:hover { background-color: #e0a800; }
+        .new-btn { background-color: #007bff; color: white; }
+        .new-btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>หนี้ - DebtFlow</h1>
+    <div class="section">
+        <label>วันที่ 1 - เสร็จ</label>
+        <input type="text" id="date" placeholder="วันที่ 4 เดือน">
+        <label>Principle รวมทั้งสิ้น</label>
+        <input type="text" id="principle" value="1,488,751.59">
+        <label>หนี้</label>
+        <input type="text" id="debtName" value="119 คดีที่ 1 อ้างอิง กู้เงิน 0-0855">
+        <button class="save-btn" onclick="saveDebt()">บันทึก</button>
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">กลับ</button>
+        <button class="new-btn" onclick="clearForm()">เพิ่มหนี้ใหม่</button>
+    </div>
+    <div class="section">
+        <h2>หนี้</h2>
+        <label>หนี้ 10,000 บาท</label>
+        <input type="text" id="debtAmount" value="10,000">
+        <label>หนี้ Toyota Camry</label>
+        <select id="debtType">
+            <option>รถยนต์</option>
+        </select>
+        <label>รหัส 1234</label>
+        <input type="text" id="debtCode" value="1234">
+        <label>หนี้รถยนต์</label>
+        <select id="debtCategory">
+            <option>รถยนต์</option>
+        </select>
+        <label>เลขทะเบียน ABC123456789</label>
+        <input type="text" id="licensePlate" value="ABC123456789">
+        <label>ข้อมูล</label>
+        <input type="text" id="debtInfo" value="คุณ อันนี้ข้อมูลนะ">
+        <button class="save-btn" onclick="saveDebt()">บันทึก</button>
+    </div>
 
-    // เพิ่มงานอัตโนมัติ
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    tasks.push({
-        name: `หนี้ ${debts.length}`,
-        status: 'กำลัง',
-        state: 'เปิด',
-        code: 'F4012'
-    });
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+    <script>
+        function saveDebt() {
+            const debt = {
+                date: document.getElementById('date').value,
+                principle: document.getElementById('principle').value,
+                name: document.getElementById('debtName').value,
+                amount: document.getElementById('debtAmount').value,
+                type: document.getElementById('debtType').value,
+                code: document.getElementById('debtCode').value,
+                category: document.getElementById('debtCategory').value,
+                licensePlate: document.getElementById('licensePlate').value,
+                info: document.getElementById('debtInfo').value
+            };
+            const debts = JSON.parse(localStorage.getItem('debts')) || [];
+            debts.push(debt);
+            localStorage.setItem('debts', JSON.stringify(debts));
+            alert('บันทึกหนี้สำเร็จ');
+        }
 
-    alert('บันทึกหนี้และเพิ่มงานสำเร็จ');
-}
+        function clearForm() {
+            document.getElementById('date').value = '';
+            document.getElementById('principle').value = '';
+            document.getElementById('debtName').value = '';
+            document.getElementById('debtAmount').value = '';
+            document.getElementById('debtCode').value = '';
+            document.getElementById('licensePlate').value = '';
+            document.getElementById('debtInfo').value = '';
+        }
+    </script>
+</body>
+</html>
