@@ -3,57 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>งาน - DebtFlow</title>
+    <title>งาน - DebtFriend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background-color: #f5f5f5; margin: 0; }
-        h1, h2 { color: #333; font-size: 24px; margin-bottom: 20px; }
-        .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-right: 5px; font-size: 16px; width: 100%; margin-top: 10px; }
-        .view-btn { background-color: #007bff; color: white; }
-        .view-btn:hover { background-color: #0056b3; }
-        .save-btn { background-color: #28a745; color: white; }
-        .save-btn:hover { background-color: #218838; }
-        .back-btn { background-color: #ffc107; color: white; }
-        .back-btn:hover { background-color: #e0a800; }
-        .icon { margin-right: 5px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: linear-gradient(135deg, #1E3A8A, #3B82F6); margin: 0; padding-bottom: 80px; color: white; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .task-card { background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 15px; margin-bottom: 10px; transition: transform 0.3s; }
+        .task-card:hover { transform: translateY(-5px); }
+        .task-card h2 { margin: 0; font-size: 18px; }
+        .task-card .status { padding: 5px 10px; border-radius: 15px; font-size: 12px; }
+        .status-pending { background: #F87171; color: white; }
+        .status-scheduled { background: #FBBF24; color: white; }
+        .status-completed { background: #34D399; color: white; }
+        .task-card .distance { font-size: 12px; color: #D1D5DB; }
+        .task-card .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .task-card button { padding: 8px; border: none; border-radius: 15px; cursor: pointer; font-size: 14px; flex: 1; }
+        .accept-btn { background: #34D399; color: white; }
+        .forward-btn { background: #FBBF24; color: white; }
+        .details-btn { background: #3B82F6; color: white; }
+        .filter { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        select { padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.2); color: white; border: none; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); border-top-left-radius: 15px; border-top-right-radius: 15px; z-index: 1000; }
+        .nav-bar a { text-align: center; color: #666; text-decoration: none; font-size: 12px; }
+        .nav-bar a.active { color: #3B82F6; }
+        .nav-bar i { display: block; margin: 0 auto 5px; font-size: 24px; }
     </style>
 </head>
 <body>
-    <h1>งาน - DebtFlow</h1>
-    <div class="section">
-        <select id="filter">
-            <option>ตัวกรอง</option>
-            <option>ทั้งหมด</option>
+    <h1>งาน - DebtFriend</h1>
+
+    <!-- Filter and Task Counter -->
+    <div class="filter">
+        <select id="filter" onchange="filterTasks()">
+            <option value="all">ทั้งหมด</option>
+            <option value="pending">ติดต่อไม่ได้</option>
+            <option value="scheduled">นัดหมาย</option>
+            <option value="completed">จบงานสำเร็จ</option>
         </select>
-        <p>จำนวนงาน: <span id="taskCount">0</span></p>
-        <div id="taskList"></div>
+        <span>จำนวนงาน: <span id="taskCount">0</span></span>
+    </div>
+
+    <!-- Task List -->
+    <div id="taskList" class="section"></div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html"><i class="fas fa-home"></i> หน้าแรก</a>
+        <a href="tasks.html" class="active"><i class="fas fa-briefcase"></i> งาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i> รายได้</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i> ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
     </div>
 
     <script>
-        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [
+            { contract: "232016580880", name: "พูลทรัพย์ พลชารี", address: "119 หมู่ที่ 1 ต.สร้อยพร้าว อ.หนองหาน จ.อุดรธานี", status: "ติดต่อไม่ได้", distance: 2.5 },
+            { contract: "232016580881", name: "สมชาย ใจดี", address: "120 หมู่ที่ 2 ต.เมือง อ.เมือง จ.ขอนแก่น", status: "นัดหมาย", distance: 1.8 }
+        ];
+
         document.getElementById('taskCount').textContent = tasks.length;
 
-        const taskList = document.getElementById('taskList');
-        tasks.forEach((task, index) => {
-            const taskDiv = document.createElement('div');
-            taskDiv.innerHTML = `
-                <h2>task${index + 1}</h2>
-                <p>หนี้ ${index + 1} - ${task.status}</p>
-                <p>สถานะ: ${task.state}</p>
-                <button class="view-btn" onclick="window.location.href='task-details.html?taskId=${index}'"><span class="icon">📄</span> เลือกข้อมูล</button>
-                <button class="save-btn" onclick="saveTask(${index})"><span class="icon">✔</span> บันทึก</button>
-                <button class="back-btn" onclick="window.location.href='dashboard.html'"><span class="icon">↩</span> กลับ</button>
-            `;
-            taskList.appendChild(taskDiv);
-        });
-
-        function saveTask(index) {
-            tasks[index].status = 'เสร็จ';
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            alert('บันทึกงานสำเร็จ');
-            window.location.reload();
+        function renderTasks(filteredTasks) {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            filteredTasks.forEach((task, index) => {
+                const statusClass = task.status === 'ติดต่อไม่ได้' ? 'status-pending' : task.status === 'นัดหมาย' ? 'status-scheduled' : 'status-completed';
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-card';
+                taskDiv.innerHTML = `
+                    <h2><i class="fas fa-file-contract"></i> ${task.contract}</h2>
+                    <p><i class="fas fa-user"></i> ${task.name}</p>
+                    <p><i class="fas fa-home"></i> ${task.address}</p>
+                    <span class="status ${statusClass}">${task.status}</span>
+                    <p class="distance"><i class="fas fa-map-marker-alt"></i> ระยะ: ${task.distance} กม.</p>
+                    <div class="actions">
+                        <button class="accept-btn" onclick="acceptTask(${index})"><i class="fas fa-check"></i> รับงาน</button>
+                        <button class="forward-btn" onclick="forwardTask(${index})"><i class="fas fa-share"></i> ฝากงาน</button>
+                        <button class="details-btn" onclick="window.location.href='task-details.html?taskId=${index}'"><i class="fas fa-eye"></i> ดูรายละเอียด</button>
+                    </div>
+                `;
+                taskList.appendChild(taskDiv);
+            });
         }
+
+        function filterTasks() {
+            const filter = document.getElementById('filter').value;
+            const filteredTasks = filter === 'all' ? tasks : tasks.filter(task => task.status.toLowerCase() === filter);
+            renderTasks(filteredTasks);
+        }
+
+        function acceptTask(index) {
+            tasks[index].status = 'นัดหมาย';
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            filterTasks();
+        }
+
+        function forwardTask(index) {
+            tasks[index].status = 'ฝากงาน';
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            filterTasks();
+        }
+
+        renderTasks(tasks);
     </script>
 </body>
 </html>
