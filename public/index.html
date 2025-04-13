@@ -11,9 +11,16 @@
         .section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
+        nav a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <nav style="background-color: #007bff; padding: 10px; margin-bottom: 20px;">
+        <a href="index.html" style="color: white; margin-right: 15px; text-decoration: none;">หน้าแรก</a>
+        <a href="dashboard.html" style="color: white; margin-right: 15px; text-decoration: none;">แดชบอร์ด</a>
+        <a href="debts.html" style="color: white; margin-right: 15px; text-decoration: none;">หนี้สิน</a>
+        <a href="tasks.html" style="color: white; margin-right: 15px; text-decoration: none;">งาน</a>
+    </nav>
     <h1>สิ่งที่ - DebtFlow</h1>
     <div class="section">
         <canvas id="debtChart"></canvas>
@@ -25,7 +32,7 @@
         <p>สิ่งที่: -</p>
         <p>หนี้: 0 บาท</p>
     </div>
-    <button onclick="alert('ดาวน์โหลดรายงาน')">ดาวน์โหลดรายงาน</button>
+    <button onclick="downloadReport()">ดาวน์โหลดรายงาน</button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -46,6 +53,24 @@
                 }
             }
         });
+
+        function downloadReport() {
+            const debts = JSON.parse(localStorage.getItem('debts')) || [];
+            let data = "รายได้: Commission\nจำนวน: รวมหนี้ทั้งหมด\nรวม: 0 บาท\nสิ่งที่: -\nหนี้: 0 บาท\n\nรายการหนี้:\n";
+            debts.forEach((debt, index) => {
+                data += `หนี้ ${index + 1}:\n`;
+                data += `Principle: ${debt.principle}\n`;
+                data += `ชื่อหนี้: ${debt.name}\n`;
+                data += `จำนวน: ${debt.amount} บาท\n\n`;
+            });
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'debtflow-report.txt';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
